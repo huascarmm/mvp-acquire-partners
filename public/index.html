@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Software Blockchain &middot; Wira Origen</title>
+<meta name="description" content="Buscamos socios estrategicos con acceso real al mercado para pilotos de trazabilidad verificable.">
+<meta name="robots" content="noindex">
+<style>html,body{margin:0;background:#0E1C1B;color:#EAF2EE}</style>
+<link rel="preload" href="assets/styles.css" as="style">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<script>
+  window.PIXEL_CONFIG = { facebook: '', tiktok: '' };
+</script>
+</head>
+<body>
+  <div class="progress" id="bar" style="width:0"></div>
+  <header class="brandbar">
+    <span><b>Software&nbsp;Blockchain</b> &middot; Wira&nbsp;Origen</span>
+    <span>Bolivia</span>
+  </header>
+  <main class="wrap">
+    <div class="step">
+      <p class="eyebrow">Alianzas estrategicas</p>
+      <h1 class="title">Buscamos socios con acceso real al mercado.</h1>
+      <p class="sub">Co-creamos pilotos de trazabilidad verificable. Elige el mercado donde tienes contactos o experiencia.</p>
+      <div class="grid" id="grid"></div>
+      <p class="foot">No buscamos inversion: buscamos quien conozca el terreno.</p>
+    </div>
+  </main>
+  <script src="assets/markets.js"></script>
+  <script src="assets/pixels.js" defer></script>
+  <script>
+    (function () {
+      var labels = {
+        cafe: ['Cafe EUDR', 'Trazabilidad para exportar cafe a la UE.'],
+        madera: ['Madera EUDR', 'Expediente de origen legal para exportadores forestales.'],
+        oro_compliance: ['Oro &middot; Compliance', 'Trazabilidad documental para oro formal.'],
+        oro_tokenizado: ['Investigacion', 'Trazabilidad de origen del oro con identidad digital.']
+      };
+      var g = document.getElementById('grid');
+      (window.MARKET_KEYS || []).forEach(function (k) {
+        var m = window.MARKETS[k], L = labels[k] || [k, ''];
+        var a = document.createElement('a');
+        a.className = 'card'; a.href = 'funnel.html?m=' + k;
+        a.setAttribute('data-market', k);
+        a.innerHTML = '<span class="k" style="color:' + m.accent + '">' + L[0] +
+          '</span><h3>' + (m.hero.title.split(':')[0]).slice(0, 48) + '</h3><p>' + L[1] + '</p>';
+        g.appendChild(a);
+      });
+      if (window.SocioPixels) SocioPixels.pageView();
+    })();
+  </script>
+</body>
+</html>

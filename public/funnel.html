@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Buscamos socio estrategico | Software Blockchain</title>
+<meta name="description" content="Buscamos un socio estrategico con acceso real al mercado para co-crear un piloto de trazabilidad verificable.">
+<meta name="robots" content="noindex">
+<!-- OG para previsualizacion en anuncios (reemplaza la imagen en assets/img/og-default.webp) -->
+<meta property="og:title" content="Buscamos un socio estrategico">
+<meta property="og:description" content="Co-creamos un piloto de trazabilidad verificable. Buscamos acceso real al mercado.">
+<meta property="og:image" content="assets/img/og-default.webp">
+<meta property="og:type" content="website">
+
+<!-- Critico inline: pinta el fondo institucional al instante (sin esperar el CSS) -->
+<style>html,body{margin:0;background:#0E1C1B;color:#EAF2EE}</style>
+
+<!-- Precarga del CSS para primer pintado casi inmediato -->
+<link rel="preload" href="assets/styles.css" as="style">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="preconnect" href="/" crossorigin>
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+
+<!-- =====================================================================
+     PIXELES DE PUBLICIDAD: pega aqui tus IDs. Si los dejas vacios, NO se
+     cargan (cero peso). Eventos: PageView al cargar, Lead al calificar/referir.
+     ===================================================================== -->
+<script>
+  window.PIXEL_CONFIG = {
+    facebook: '',   /* <-- ID del pixel de Meta/Facebook */
+    tiktok:   ''    /* <-- ID del pixel de TikTok */
+  };
+</script>
+</head>
+<body>
+  <div class="bg-image" id="bgimg" aria-hidden="true"></div>
+  <div class="progress" id="bar"></div>
+  <header class="brandbar">
+    <span><b>Software&nbsp;Blockchain</b> &middot; Wira&nbsp;Origen</span>
+    <span>Bolivia</span>
+  </header>
+
+  <main class="wrap"><div id="app"></div></main>
+
+  <!-- markets primero (config), luego pixeles, luego el motor (defer = no bloquea) -->
+  <script src="assets/markets.js"></script>
+  <script src="assets/pixels.js" defer></script>
+  <script src="assets/funnel.js" defer></script>
+</body>
+</html>

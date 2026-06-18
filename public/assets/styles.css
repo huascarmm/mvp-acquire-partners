@@ -1,0 +1,463 @@
+/* =============================================================================
+ * styles.css — Sistema visual "Origen Verificable"
+ * Identidad: tinta institucional profunda + acento por mercado + sello mono.
+ * Tipografía: sans del sistema (prosa) + monoespaciada (sellos/etiquetas) =
+ * cero latencia de fuentes web -> primer pintado casi inmediato.
+ * Firma: el "sello de origen verificable" con check animado.
+ * ===========================================================================*/
+
+:root {
+  --ink: #0e1c1b; /* base tinta teal-slate profundo */
+  --surface: #13282a;
+  --surface-2: #0b1717;
+  --text: #eaf2ee;
+  --muted: #93a7a1;
+  --hair: rgba(234, 242, 238, 0.12);
+  --hair-strong: rgba(234, 242, 238, 0.22);
+  --accent: #c57b46; /* lo sobreescribe cada mercado */
+  --accent-soft: rgba(197, 123, 70, 0.16);
+  --ok: #5fd0a8;
+  --radius: 16px;
+  --maxw: 640px;
+  --sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    "Noto Sans", sans-serif;
+  --mono:
+    ui-monospace, SFMono-Regular, Menlo, "Cascadia Mono", "Roboto Mono",
+    monospace;
+}
+
+/* Acentos por mercado (se aplican con [data-market] en <body>) */
+body[data-market="cafe"] {
+  --accent: #c57b46;
+  --accent-soft: rgba(197, 123, 70, 0.16);
+}
+body[data-market="madera"] {
+  --accent: #6e9460;
+  --accent-soft: rgba(110, 148, 96, 0.16);
+}
+body[data-market="oro_compliance"] {
+  --accent: #c9a227;
+  --accent-soft: rgba(201, 162, 39, 0.15);
+}
+body[data-market="oro_tokenizado"] {
+  --accent: #4fa3a1;
+  --accent-soft: rgba(79, 163, 161, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  background: var(--ink);
+} /* evita flash blanco antes del CSS */
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  background: var(--ink);
+  min-height: 100vh;
+  /* Textura "topográfica" (origen/parcela) + brillo del acento, sólo CSS */
+  background-image:
+    radial-gradient(120% 90% at 78% -10%, var(--accent-soft), transparent 60%),
+    radial-gradient(
+      90% 70% at 10% 110%,
+      rgba(255, 255, 255, 0.03),
+      transparent 55%
+    ),
+    repeating-radial-gradient(
+      circle at 26% 120%,
+      transparent 0 46px,
+      rgba(255, 255, 255, 0.018) 46px 47px
+    );
+  background-attachment: fixed;
+}
+/* Imagen de fondo opcional (se activa por --bg-image desde markets si existe) */
+.bg-image {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.24;
+  filter: saturate(0.9) contrast(1.05);
+}
+
+.bg-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 78% -10%, var(--accent-soft), transparent 60%),
+    linear-gradient(90deg, rgba(14, 28, 27, 0.88), rgba(14, 28, 27, 0.62));
+}
+
+.wrap,
+.brandbar {
+  position: relative;
+  z-index: 1;
+}
+
+/* Layout base ----------------------------------------------------------------*/
+.wrap {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(20px, 5vw, 48px);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.brandbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px clamp(16px, 4vw, 32px);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  z-index: 5;
+}
+.brandbar b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Sello de origen verificable (FIRMA) ----------------------------------------*/
+.seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  padding: 0.42rem 0.8rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+.seal .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+.seal svg {
+  width: 14px;
+  height: 14px;
+}
+.seal .chk {
+  stroke: var(--ok);
+  stroke-width: 2.4;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  animation: draw 0.7s 0.25s ease forwards;
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Eyebrow / títulos ----------------------------------------------------------*/
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.9rem;
+}
+h1.title {
+  font-size: clamp(1.85rem, 5.2vw, 3rem);
+  line-height: 1.1;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  margin: 0.2rem 0 1rem;
+  text-wrap: balance;
+}
+.sub {
+  color: var(--muted);
+  font-size: clamp(1rem, 2.4vw, 1.12rem);
+  margin: 0 0 2rem;
+  max-width: 52ch;
+}
+.q {
+  font-size: clamp(1.35rem, 3.6vw, 1.7rem);
+  font-weight: 600;
+  line-height: 1.22;
+  margin: 0.2rem 0 1.4rem;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* Botones / opciones ---------------------------------------------------------*/
+.btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--accent);
+  border-radius: 12px;
+  padding: 0.95rem 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease;
+}
+.btn:hover {
+  filter: brightness(1.07);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn.ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--hair-strong);
+}
+.btn.full {
+  width: 100%;
+  justify-content: center;
+}
+.btn .arrow {
+  transition: transform 0.15s ease;
+}
+.btn:hover .arrow {
+  transform: translateX(3px);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-top: 0.4rem;
+}
+.opt {
+  text-align: left;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--hair);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 1.05rem 1.15rem;
+  font-size: 1.04rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.12s ease;
+}
+.opt:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: translateY(-1px);
+}
+.opt .tick {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--hair-strong);
+  flex: 0 0 auto;
+}
+.opt:hover .tick {
+  border-color: var(--accent);
+}
+
+/* Campos de texto ------------------------------------------------------------*/
+.field {
+  display: block;
+  margin: 0 0 1rem;
+}
+.field label {
+  display: block;
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin: 0 0 0.4rem;
+}
+.field input,
+.field textarea {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--hair);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  font-size: 1.02rem;
+  font-family: var(--sans);
+}
+.field input:focus,
+.field textarea:focus,
+.opt:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.field textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+@media (max-width: 480px) {
+  .row2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Progreso -------------------------------------------------------------------*/
+.progress {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 3px;
+  background: var(--accent);
+  width: 0;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.1, 1);
+  z-index: 6;
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* Tarjeta del paso + transición ----------------------------------------------*/
+.step {
+  animation: rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.muted {
+  color: var(--muted);
+}
+.disclaimer {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: #f0c98a;
+  border: 1px solid rgba(240, 201, 138, 0.3);
+  background: rgba(240, 201, 138, 0.08);
+  border-radius: 10px;
+  padding: 0.6rem 0.8rem;
+  margin: 0 0 1.4rem;
+  display: inline-block;
+}
+.back {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 1.4rem;
+  padding: 0.3rem 0;
+  font-family: var(--sans);
+}
+.back:hover {
+  color: var(--text);
+}
+.foot {
+  margin-top: 2.2rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.coupon {
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  border: 1px dashed var(--accent);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  display: inline-block;
+  margin: 1rem 0;
+}
+
+/* Selector de mercado (index) ------------------------------------------------*/
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.6rem;
+}
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+.card {
+  display: block;
+  text-decoration: none;
+  color: var(--text);
+  border: 1px solid var(--hair);
+  border-radius: var(--radius);
+  padding: 1.3rem;
+  background: rgba(255, 255, 255, 0.02);
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.card .k {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.card h3 {
+  margin: 0.5rem 0 0.3rem;
+  font-size: 1.15rem;
+}
+.card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+/* Reduced motion -------------------------------------------------------------*/
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .progress {
+    transition: none;
+  }
+}

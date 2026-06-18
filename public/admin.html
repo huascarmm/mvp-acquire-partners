@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Panel &middot; Leads</title>
+    <meta name="robots" content="noindex" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #0e1c1b;
+        color: #eaf2ee;
+      }
+    </style>
+    <link rel="stylesheet" href="assets/styles.css" />
+    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+    <style>
+      /* estilos propios del panel (compactos) */
+      .admin {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 80px 20px 60px;
+      }
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.8rem;
+        margin: 1.2rem 0;
+      }
+      .kpi {
+        border: 1px solid var(--hair);
+        border-radius: 14px;
+        padding: 1rem 1.1rem;
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .kpi .n {
+        font-size: 1.9rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .kpi .l {
+        font-family: var(--mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        align-items: center;
+        margin: 1.2rem 0 0.6rem;
+      }
+      .toolbar select,
+      .toolbar input {
+        background: var(--surface-2);
+        border: 1px solid var(--hair);
+        color: var(--text);
+        border-radius: 10px;
+        padding: 0.5rem 0.7rem;
+        font-size: 0.92rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 0.6rem 0.5rem;
+        border-bottom: 1px solid var(--hair);
+        vertical-align: top;
+      }
+      th {
+        font-family: var(--mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      tr.click {
+        cursor: pointer;
+      }
+      tr.click:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .tag {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        border: 1px solid var(--hair-strong);
+      }
+      .A {
+        color: #7cf0c0;
+        border-color: #7cf0c0;
+      }
+      .B {
+        color: #9fd0ff;
+        border-color: #9fd0ff;
+      }
+      .C {
+        color: #e9d18a;
+        border-color: #e9d18a;
+      }
+      .D {
+        color: var(--muted);
+      }
+      .login {
+        max-width: 360px;
+        margin: 18vh auto 0;
+        padding: 0 20px;
+      }
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 20;
+      }
+      .modal.open {
+        display: flex;
+      }
+      .sheet {
+        background: var(--surface);
+        border: 1px solid var(--hair-strong);
+        border-radius: 16px;
+        max-width: 560px;
+        width: 100%;
+        padding: 1.4rem;
+        max-height: 84vh;
+        overflow: auto;
+      }
+      .sheet pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-family: var(--mono);
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin: 1rem 0;
+      }
+      .tabs button {
+        background: transparent;
+        border: 1px solid var(--hair);
+        color: var(--muted);
+        border-radius: 999px;
+        padding: 0.4rem 0.9rem;
+        cursor: pointer;
+        font-family: var(--mono);
+        font-size: 0.74rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .tabs button.on {
+        color: var(--ink);
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+    </style>
+    <!-- Configuracion de Firebase (solo para Auth del cliente). Reemplaza con la tuya. -->
+    <script>
+      window.FIREBASE_CONFIG = {
+        apiKey: "AIzaSyAkJWgRxQjo_j70svMn0pqxg_vsgx0PJ7g",
+        authDomain: "colegios-285314.firebaseapp.com",
+        projectId: "colegios-285314",
+      };
+    </script>
+  </head>
+  <body data-market="oro_tokenizado">
+    <header class="brandbar">
+      <span><b>Panel</b> &middot; Leads</span><span id="who"></span>
+    </header>
+
+    <!-- Login -->
+    <div class="login" id="login">
+      <div class="step">
+        <p class="eyebrow">Acceso restringido</p>
+        <h2 class="q">Ingresar al panel</h2>
+        <div class="field">
+          <label>Email</label><input id="email" type="email" />
+        </div>
+        <div class="field">
+          <label>Contrasena</label><input id="pass" type="password" />
+        </div>
+        <button class="btn full" id="signin">Ingresar</button>
+        <p class="foot" id="err" style="color: #f2a3a3"></p>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <main class="admin" id="dash" style="display: none">
+      <div class="kpis" id="kpis"></div>
+
+      <div class="tabs">
+        <button class="on" data-tab="leads">Leads</button>
+        <button data-tab="referrals">Referidos</button>
+      </div>
+
+      <div class="toolbar" id="filters">
+        <select id="fMarket">
+          <option value="">Todos los mercados</option>
+        </select>
+        <select id="fType">
+          <option value="">Todos los tipos</option>
+          <option>A</option>
+          <option>B</option>
+          <option>C</option>
+          <option>D</option>
+        </select>
+        <select id="fStage">
+          <option value="">Toda etapa</option>
+          <option value="1">1 Triage</option>
+          <option value="2">2 Prueba</option>
+          <option value="3">3 Calificacion</option>
+          <option value="4">4 Maximo valor</option>
+        </select>
+        <input id="fSearch" placeholder="Buscar nombre / empresa..." />
+        <button class="btn ghost" id="csv">Exportar CSV</button>
+      </div>
+
+      <div id="tableWrap"></div>
+    </main>
+
+    <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+
+    <script type="module" src="assets/admin.js"></script>
+  </body>
+</html>
