@@ -58,6 +58,10 @@ for R in roles/run.admin \
   gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="serviceAccount:$SA" --role="$R" -q
 done
+
+# Requerido por google-github-actions/auth@v3 al usar credentials_json:
+gcloud iam service-accounts add-iam-policy-binding $SA \
+  --member="serviceAccount:$SA" --role="roles/iam.serviceAccountTokenCreator" -q
 ```
 
 ## 4. Que la app (runtime de Cloud Run) lea/escriba Firestore vía ADC
@@ -131,18 +135,37 @@ Verás el reporte de Playwright como artifact del run en GitHub.
 
 ---
 
-## 10. Local (opcional)
+## 10. Desarrollo local + `serviceAccount.json`
+
+En local, firebase-admin (en `server.js`) necesita credenciales para hablar con Firestore. Se proveen con una llave de service account apuntada por `GOOGLE_APPLICATION_CREDENTIALS`. Puedes **reutilizar la llave del deploy** o crear una dedicada para local con permiso mínimo de Firestore:
+
+```bash
+# Opcion A (rapida): reutiliza la del deploy
+gcloud iam service-accounts keys create serviceAccount.json --iam-account=$SA
+
+# Opcion B (recomendada): una SA solo-local con datastore.user
+gcloud iam service-accounts create local-dev --display-name="Local dev"
+export LSA=local-dev@$PROJECT_ID.iam.gserviceaccount.com
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:$LSA" --role="roles/datastore.user" -q
+gcloud iam service-accounts keys create serviceAccount.json --iam-account=$LSA
+```
+
+`serviceAccount.json` queda en la raiz del proyecto y **esta en `.gitignore`/`.dockerignore`** (no se sube ni al repo ni a la imagen). Luego:
 
 ```bash
 npm install
 export FIREBASE_PROJECT_ID=$PROJECT_ID
 export ADMIN_EMAILS="tu-correo@dominio.com"
-export GOOGLE_APPLICATION_CREDENTIALS=./serviceAccount.json   # llave de servicio local
+export GOOGLE_APPLICATION_CREDENTIALS=./serviceAccount.json
 npm run dev        # http://localhost:8080
 
-# en otra terminal, contra el server local:
+# en otra terminal, tests E2E contra el server local:
 E2E_BASE_URL=http://localhost:8080 npm run test:e2e
+# (la primera vez: npx playwright install chromium)
 ```
+
+Abre `http://localhost:8080/funnel.html?m=cafe` para probar el embudo, y `/admin.html` para el panel.
 
 Optimizar imágenes (si reemplazas PNG): `npm run optimize:images` (usa `sharp`, ya en devDependencies).
 

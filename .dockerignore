@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+.git
+.github
+.env
+*.local
+serviceAccount.json
+tests
+playwright-report
+test-results
+.firebase

@@ -1,0 +1,125 @@
+name: Deploy & Verify
+
+# Push a main: despliega una revision CANDIDATA en Cloud Run SIN trafico,
+# corre los tests E2E contra esa URL y, solo si pasan, promueve el trafico,
+# despliega el frontend en Firebase Hosting y limpia los datos de prueba.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGION: us-central1
+  SERVICE: socio-funnel          # = repo de Artifact Registry y serviceId en firebase.json
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  ADMIN_EMAILS: ${{ secrets.ADMIN_EMAILS }}
+
+jobs:
+  # ---------------------------------------------------------------------------
+  deploy-candidate:
+    runs-on: ubuntu-latest
+    outputs:
+      candidate_url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Build & push imagen
+        run: |
+          set -e
+          gcloud auth configure-docker "$REGION-docker.pkg.dev" -q
+          IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE/app:${GITHUB_SHA::12}"
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+
+      - name: Deploy revision CANDIDATA (sin trafico)
+        id: deploy
+        run: |
+          set -e
+          TAG="cand-${GITHUB_SHA::8}"
+          gcloud run deploy "$SERVICE" \
+            --project "$PROJECT_ID" \
+            --image "$IMAGE" \
+            --region "$REGION" \
+            --platform managed \
+            --allow-unauthenticated \
+            --tag "$TAG" \
+            --no-traffic \
+            --set-env-vars "FIREBASE_PROJECT_ID=$PROJECT_ID,ADMIN_EMAILS=$ADMIN_EMAILS"
+          URL=$(gcloud run services describe "$SERVICE" --project "$PROJECT_ID" --region "$REGION" --format=json \
+            | jq -r --arg t "$TAG" '.status.traffic[] | select(.tag==$t) | .url')
+          echo "Candidate URL: $URL"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+  # ---------------------------------------------------------------------------
+  e2e:
+    needs: deploy-candidate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Tests E2E contra la revision candidata
+        env:
+          E2E_BASE_URL: ${{ needs.deploy-candidate.outputs.candidate_url }}
+          E2E_RUN_ID: ${{ github.run_id }}
+          CI: "true"
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  promote:
+    needs: e2e
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Promover trafico a la nueva revision
+        run: gcloud run services update-traffic "$SERVICE" --project "$PROJECT_ID" --region "$REGION" --to-latest
+
+      - name: Deploy frontend (Firebase Hosting)
+        run: |
+          npm i -g firebase-tools
+          firebase deploy --only hosting --project "$PROJECT_ID" --non-interactive
+
+      - name: Smoke post-deploy (servicio en vivo)
+        run: |
+          set -e
+          URL=$(gcloud run services describe "$SERVICE" --project "$PROJECT_ID" --region "$REGION" --format='value(status.url)')
+          curl -fsS "$URL/health" | grep -q '"ok":true'
+          echo "OK: $URL/health"
+
+      - name: Setup Node para limpieza
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Limpiar datos de prueba E2E en Firestore
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        run: npm run cleanup:e2e

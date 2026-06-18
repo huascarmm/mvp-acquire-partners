@@ -1,7 +1,11 @@
 {
   "hosting": {
     "public": "public",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "headers": [
       {
         "source": "**/*.@(css|js|webp|png|jpg|svg|woff2)",
@@ -26,7 +30,7 @@
       {
         "source": "/api/**",
         "run": {
-          "serviceId": "colegios-285314",
+          "serviceId": "socio-funnel",
           "region": "us-central1"
         }
       }
