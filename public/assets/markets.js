@@ -1,8 +1,8 @@
 /* =============================================================================
  * markets.js — Configuración de los 4 mercados (un solo motor de embudo)
  * Para agregar un 5º mercado: añade una entrada aquí. No se toca el motor.
- * Cada mercado define: copy del hero, acento visual, triage, prueba, preguntas
- * de calificación y la "pregunta de máximo valor".
+ * Copy del hero afinado para armonía (message-match) con los anuncios Meta.
+ * Estructura, keys, values, ids, access, finalAsk.field y pixels intactos.
  * ===========================================================================*/
 window.MARKETS = {
   cafe: {
@@ -11,8 +11,8 @@ window.MARKETS = {
     eyebrow: "Café · EUDR",
     hero: {
       title:
-        "Buscamos un socio estratégico para la trazabilidad EUDR del café boliviano.",
-      sub: "No vendemos software de mapas. Co-creamos implementación verificable: campo, expediente y notarización. Buscamos a quien conozca el terreno.",
+        "Buscamos un socio estratégico con acceso real al café boliviano para co-crear la trazabilidad EUDR.",
+      sub: "No vendemos software de mapas: co-creamos una implementación verificable —campo, expediente y notarización en blockchain— con quien conoce el terreno: cooperativas, exportadores o compradores europeos.",
     },
     triage: {
       question: "¿Cómo te relacionas con el sector café?",
@@ -112,8 +112,8 @@ window.MARKETS = {
     eyebrow: "Madera · EUDR",
     hero: {
       title:
-        "Buscamos un socio del sector forestal para un piloto de expediente EUDR verificable.",
-      sub: "Origen legal y cero deforestación. Complementa tu CFO/FSC con el expediente que exige el importador europeo.",
+        "Buscamos un socio del sector forestal para co-crear un expediente EUDR verificable.",
+      sub: "Origen legal, cadena de custodia y cero deforestación. Complementamos tu CFO/FSC con el expediente que exige el importador europeo, sobre un embarque real.",
     },
     triage: {
       question: "¿Cómo te relacionas con el sector forestal?",
@@ -213,7 +213,7 @@ window.MARKETS = {
     hero: {
       title:
         "Buscamos un aliado del sector aurífero formal para validar un sistema de compliance y trazabilidad documental.",
-      sub: "Sin tokenización ni compra de oro: expediente verificable, alineado a OCDE/LBMA, para comercializadoras formales.",
+      sub: "Sin tokenización ni compra de oro: un expediente verificable, alineado a OCDE/LBMA, que sustenta el origen ante BCB, refinerías y banca.",
     },
     triage: {
       question: "¿Cómo te relacionas con el sector aurífero formal?",
@@ -309,8 +309,8 @@ window.MARKETS = {
     disclaimer: "Es una investigación / piloto, NO una oferta de inversión.",
     hero: {
       title:
-        "Iniciativa de investigación: trazabilidad voluntaria de origen del oro con identidad digital.",
-      sub: "Preformalización responsable. Convocamos a aliados regulatorios, institucionales, técnicos y académicos a una mesa de diálogo.",
+        "Iniciativa de investigación: trazabilidad voluntaria de origen del oro y preformalización responsable, con identidad digital.",
+      sub: "Convocamos a aliados regulatorios, institucionales, técnicos y académicos a una mesa de diálogo. No se ofrecen ni venden activos.",
     },
     triage: {
       question: "¿Cuál es tu perfil?",
