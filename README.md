@@ -80,3 +80,10 @@ Añade una entrada al objeto `MARKETS` en `assets/markets.js` y al set `MARKETS`
 ## Nota
 El scoring se calcula en el servidor y **no se expone** al cliente. El embudo guarda progresivamente:
 si alguien abandona a mitad, queda registrado en la etapa alcanzada y lo ves en el panel.
+
+## Marketing: medición, credibilidad y CTAs (este release)
+- **Eventos por calidad (Meta):** el embudo dispara `ViewContent`, `InitiateCheckout` (inicio), `Lead` (todos) y `LeadCalificado` (solo Tipo A/B). Optimiza tus campañas hacia **`LeadCalificado`** para conseguir más leads de alta calidad. También `Schedule` (clic en Agendar) y `Contact` (clic en WhatsApp).
+- **Conversions API (opcional):** server-side, dual con el pixel y dedup por `eventId`. Se activa con la env `META_CAPI` (ver `.env.example`). Si no se configura, el sistema funciona igual con eventos de navegador.
+- **Google Analytics 4:** pon tu `G-XXXX` en `public/assets/site.js`. Mide rebote, origen del tráfico y el embudo (`funnel_start`, `funnel_stage`, `generate_lead`, `qualified_lead`, `referral`).
+- **Credibilidad / contacto:** edita `public/assets/site.js` (marca, puntos, WhatsApp, Calendly, logos en `assets/img/logos/`). Sin LinkedIn. WhatsApp y Calendly se muestran cuando el lead califica.
+- **Variantes de landing:** cada anuncio puede llevar `?v=C-A` (etc.) y la landing muestra el hero que hace *message-match* con ese anuncio (`heroVariants` en `markets.js`). Una sola landing por mercado.

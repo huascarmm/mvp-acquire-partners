@@ -18,6 +18,8 @@ const path = require('path');
 const express = require('express');
 const admin = require('firebase-admin');
 const { computeScore, leadTypeFor } = require('./lib/scoring');
+const { sendMetaEvent } = require('./lib/meta-capi');
+const crypto = require('crypto');
 
 const PROJECT_ID = process.env.FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT;
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
@@ -111,8 +113,29 @@ app.post('/api/lead', rateLimit, async (req, res) => {
       ...(snap.exists ? {} : { createdAt: now })
     }, { merge: true });
 
-    // No devolvemos el score (queda oculto al cliente)
-    res.json({ ok: true, id: b.sessionId });
+    const qualified = leadType === 'A' || leadType === 'B';
+
+    // En el paso final: dispara el Conversions API (si está configurado).
+    // Devuelve un eventId para que el navegador deduplique el mismo evento.
+    let eventId;
+    if (Number(b.stageReached) >= 4) {
+      eventId = crypto.randomUUID();
+      const meta = b.meta || {};
+      const evCommon = {
+        score,
+        contact: merged.contact,
+        ip: (req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim(),
+        ua: req.headers['user-agent'] || '',
+        fbp: meta.fbp, fbc: meta.fbc,
+        sourceUrl: meta.sourceUrl,
+      };
+      // No bloquea la respuesta:
+      sendMetaEvent(merged.market, { ...evCommon, eventName: 'Lead', eventId });
+      if (qualified) sendMetaEvent(merged.market, { ...evCommon, eventName: 'LeadCalificado', eventId: eventId + ':q' });
+    }
+
+    // No devolvemos el score numérico; sí el tipo y si califica (para los eventos).
+    res.json({ ok: true, id: b.sessionId, leadType, qualified, eventId });
   } catch (e) {
     console.error('lead error', e);
     res.status(500).json({ ok: false, error: 'server' });

@@ -58,8 +58,12 @@
 
     <main class="wrap"><div id="app"></div></main>
 
-    <!-- markets primero (config), luego pixeles, luego el motor (defer = no bloquea) -->
+    <!-- markets (config) y site (marca/contacto/medición) primero;
+         luego analytics + pixeles, y al final el motor (defer = no bloquea).
+         El Conversions API (server-side) es opcional y se configura por env. -->
     <script src="assets/markets.js"></script>
+    <script src="assets/site.js"></script>
+    <script src="assets/analytics.js" defer></script>
     <script src="assets/pixels.js" defer></script>
     <script src="assets/funnel.js" defer></script>
   </body>

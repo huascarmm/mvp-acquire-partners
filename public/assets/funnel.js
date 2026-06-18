@@ -24,6 +24,13 @@
     utmCampaign: qs.get("utm_campaign") || "",
   };
 
+  function cookie(n) {
+    var m = document.cookie.match("(^|;)\\s*" + n + "\\s*=\\s*([^;]+)");
+    return m ? m.pop() : "";
+  }
+  // Datos para deduplicar el evento navegador <-> Conversions API.
+  var meta = { fbp: cookie("_fbp"), fbc: cookie("_fbc"), sourceUrl: location.href };
+
   var state = {
     contact: {},
     marketAccess: {},
@@ -35,17 +42,24 @@
   var app = document.getElementById("app");
   var bar = document.getElementById("bar");
 
-  function saveLead(stage, patch) {
+  function saveLead(stage, patch, extra) {
     return fetch("/api/lead", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sessionId: sessionId,
-        market: marketKey,
-        stageReached: stage,
-        patch: patch,
-      }),
-    }).catch(function () {});
+      body: JSON.stringify(
+        Object.assign(
+          {
+            sessionId: sessionId,
+            market: marketKey,
+            stageReached: stage,
+            patch: patch,
+          },
+          extra || {},
+        ),
+      ),
+    })
+      .then(function (r) { return r.json(); })
+      .catch(function () { return {}; });
   }
   function saveReferral(payload) {
     return fetch("/api/referral", {
@@ -91,32 +105,85 @@
     return b;
   }
 
+  function credibilityHTML() {
+    var S = window.SITE || {};
+    var c = S.credibility || {};
+    var line = c.line || S.tagline || "";
+    var pts = (c.points || [])
+      .map(function (p) { return "<li>" + esc(p) + "</li>"; })
+      .join("");
+    var logos = (c.logos || [])
+      .map(function (l) {
+        return '<img src="' + esc(l.src) + '" alt="' + esc(l.alt || "") + '" loading="lazy">';
+      })
+      .join("");
+    if (!line && !pts && !logos) return "";
+    return (
+      '<div class="cred">' +
+      (line ? '<p class="cred-line">' + esc(line) + "</p>" : "") +
+      (pts ? '<ul class="cred-pts">' + pts + "</ul>" : "") +
+      (logos ? '<div class="logos">' + logos + "</div>" : "") +
+      "</div>"
+    );
+  }
+
+  // Botones de Calendly + WhatsApp (sin LinkedIn). Se muestran al calificar.
+  function ctaRowHTML() {
+    var S = window.SITE || {};
+    var cta = M.cta || {};
+    var wa = String(cta.whatsapp || S.whatsapp || "").replace(/\D/g, "");
+    var cal = cta.calendly || S.calendly || "";
+    var msg = encodeURIComponent(
+      String(cta.whatsappMsg || S.whatsappMsg || "Hola").replace("{market}", M.eyebrow || marketKey),
+    );
+    var html = "";
+    if (cal)
+      html +=
+        '<a class="btn full" id="cal" href="' + esc(cal) +
+        '" target="_blank" rel="noopener">Agendar reunion <span class="arrow">&rarr;</span></a>';
+    if (wa)
+      html +=
+        '<a class="btn ghost full" id="wa" style="margin-top:.6rem" href="https://wa.me/' +
+        wa + "?text=" + msg + '" target="_blank" rel="noopener">Escribir por WhatsApp</a>';
+    return html;
+  }
+  function wireCtas(node) {
+    var cal = node.querySelector("#cal");
+    if (cal) cal.onclick = function () {
+      if (window.SocioPixels) SocioPixels.schedule(marketKey);
+      if (window.SocioAnalytics) SocioAnalytics.event("cta_schedule", { market: marketKey });
+    };
+    var wa = node.querySelector("#wa");
+    if (wa) wa.onclick = function () {
+      if (window.SocioPixels) SocioPixels.contact(marketKey);
+      if (window.SocioAnalytics) SocioAnalytics.event("cta_whatsapp", { market: marketKey });
+    };
+  }
+
   /* 0) HERO */
   function stepHero() {
     setProgress(6);
+    var hero = (M.heroVariants && M.heroVariants[campaign.variant]) || M.hero;
     var dis = M.disclaimer
       ? '<div class="disclaimer">' + esc(M.disclaimer) + "</div>"
       : "";
     var node = el(
       '<div class="step">' +
-        '<p class="eyebrow">' +
-        esc(M.eyebrow) +
-        "</p>" +
+        '<p class="eyebrow">' + esc(M.eyebrow) + "</p>" +
         dis +
-        '<h1 class="title">' +
-        esc(M.hero.title) +
-        "</h1>" +
-        '<p class="sub">' +
-        esc(M.hero.sub) +
-        "</p>" +
-        '<div style="margin:1.2rem 0 1.6rem">' +
-        sealHTML() +
-        "</div>" +
+        '<h1 class="title">' + esc(hero.title) + "</h1>" +
+        '<p class="sub">' + esc(hero.sub) + "</p>" +
         '<button class="btn full" id="go">Soy un posible aliado <span class="arrow">&rarr;</span></button>' +
-        '<p class="foot">Toma menos de 2 minutos. Buscamos acceso real al mercado, no inversion.</p>' +
+        '<p class="foot">Menos de 2 minutos. Buscamos acceso real al mercado, no inversion.</p>' +
+        credibilityHTML() +
         "</div>",
     );
-    node.querySelector("#go").onclick = stepTriage;
+    node.querySelector("#go").onclick = function () {
+      if (window.SocioPixels) SocioPixels.funnelStart();
+      if (window.SocioAnalytics) SocioAnalytics.event("funnel_start", { market: marketKey });
+      stepTriage();
+    };
+    if (window.SocioPixels) SocioPixels.viewContent();
     render(node);
   }
 
@@ -248,6 +315,7 @@
       return stepFinal();
     }
     setProgress(48 + Math.round(((i + 1) / (qns.length + 1)) * 32));
+    if (window.SocioAnalytics) SocioAnalytics.event("funnel_stage", { market: marketKey, stage: i + 1 });
     var item = qns[i];
     var opts = item.options
       .map(function (o) {
@@ -311,32 +379,47 @@
     node.querySelectorAll(".opt").forEach(function (b) {
       b.onclick = function () {
         state.finalAsk[fa.field] = b.dataset.v;
-        saveLead(4, { finalAsk: state.finalAsk });
-        if (M.pixelLeadEvent && window.SocioPixels) SocioPixels.lead(marketKey);
-        stepThanksA(b.dataset.v);
+        saveLead(4, { finalAsk: state.finalAsk }, { meta: meta }).then(function (resp) {
+          resp = resp || {};
+          var ev = resp.eventId;
+          if (M.pixelLeadEvent && window.SocioPixels) {
+            SocioPixels.lead(marketKey, ev);
+            if (resp.qualified) SocioPixels.leadQualified(marketKey, ev ? ev + ":q" : undefined);
+          }
+          if (window.SocioAnalytics) {
+            SocioAnalytics.event("generate_lead", { market: marketKey, lead_type: resp.leadType });
+            if (resp.qualified) SocioAnalytics.event("qualified_lead", { market: marketKey });
+          }
+          stepThanksA(b.dataset.v, resp);
+        });
       };
     });
     render(node);
   }
 
   /* 5A) GRACIAS (acceso) */
-  function stepThanksA(choice) {
+  function stepThanksA(choice, resp) {
     setProgress(100);
-    var msg =
-      choice === "info"
+    resp = resp || {};
+    var qualified = !!resp.qualified;
+    var head = qualified ? "Tu perfil encaja." : "Registro verificado.";
+    var msg = qualified
+      ? "Demos el siguiente paso: agenda una reunion o escribenos por WhatsApp."
+      : choice === "info"
         ? "Te enviaremos mas informacion y coordinamos una conversacion breve."
         : "Nos pondremos en contacto muy pronto para coordinar la reunion.";
+    var ctas = qualified ? ctaRowHTML() : "";
     var node = el(
       '<div class="step"><div style="margin-bottom:1.2rem">' +
         sealHTML() +
         "</div>" +
-        '<h1 class="title">Registro verificado.</h1>' +
-        '<p class="sub">' +
-        esc(msg) +
-        "</p>" +
-        '<p class="foot">Tambien puedes referir a alguien valioso y recibir un cupo de curso AsoBlockchain.</p>' +
+        '<h1 class="title">' + esc(head) + "</h1>" +
+        '<p class="sub">' + esc(msg) + "</p>" +
+        ctas +
+        '<p class="foot" style="margin-top:1.4rem">Tambien puedes referir a alguien valioso y recibir un cupo de curso AsoBlockchain.</p>' +
         '<button class="btn ghost full" id="ref">Referir a alguien y recibir un cupo</button></div>',
     );
+    wireCtas(node);
     node.querySelector("#ref").onclick = function () {
       stepReferral(true);
     };
@@ -402,7 +485,8 @@
       };
       node.querySelector("#send").textContent = "Enviando...";
       saveReferral(payload).then(function (r) {
-        if (window.SocioPixels) SocioPixels.lead(marketKey);
+        if (window.SocioPixels) SocioPixels.referral(marketKey);
+        if (window.SocioAnalytics) SocioAnalytics.event("referral", { market: marketKey });
         stepThanksB(r && r.couponCode);
       });
     };

@@ -438,3 +438,57 @@ h1.title {
   *, .progress { animation: none !important; transition: none !important; }
   .bg-image { transition: opacity .3s ease !important; transform: none !important; }
 }
+
+/* Credibilidad (consultora seria) -------------------------------------------*/
+.cred {
+  margin-top: 2rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--hair);
+}
+.cred-line {
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 .7rem;
+}
+.cred-pts {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem .7rem;
+}
+.cred-pts li {
+  font-size: .82rem;
+  color: var(--text);
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  padding: .34rem .75rem;
+}
+.cred-pts li::before {
+  content: "✓";
+  color: var(--accent);
+  margin-right: .4rem;
+  font-weight: 700;
+}
+.logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.1rem;
+  opacity: .82;
+}
+.logos img {
+  height: 30px;
+  width: auto;
+  filter: grayscale(1) brightness(1.6);
+  opacity: .85;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .logos img { transition: opacity .2s ease, filter .2s ease; }
+  .logos img:hover { opacity: 1; filter: none; }
+}

@@ -14,6 +14,17 @@ window.MARKETS = {
         "Buscamos un socio estratégico con acceso real al café boliviano para co-crear la trazabilidad EUDR.",
       sub: "No vendemos software de mapas: co-creamos una implementación verificable —campo, expediente y notarización en blockchain— con quien conoce el terreno: cooperativas, exportadores o compradores europeos.",
     },
+    // Variantes de hero por anuncio (?v=C-A / ?v=C-B). Una sola landing.
+    heroVariants: {
+      "C-A": {
+        title: "¿Conoces o trabajas el café boliviano de exportación?",
+        sub: "Buscamos un socio que viva el sector —cooperativa, exportación o cooperación— para co-crear un piloto de trazabilidad EUDR verificable. Tú aportas acceso; nosotros, el software.",
+      },
+      "C-B": {
+        title: "Llevemos trazabilidad verificable al café boliviano de exportación.",
+        sub: "Tú conoces el negocio; nosotros ponemos la trazabilidad y notarización que pide Europa. Co-creamos el piloto. Buscamos un experto de la industria, no inversión.",
+      },
+    },
     triage: {
       question: "¿Cómo te relacionas con el sector café?",
       options: [
@@ -115,6 +126,16 @@ window.MARKETS = {
         "Buscamos un socio del sector forestal para co-crear un expediente EUDR verificable.",
       sub: "Origen legal, cadena de custodia y cero deforestación. Complementamos tu CFO/FSC con el expediente que exige el importador europeo, sobre un embarque real.",
     },
+    heroVariants: {
+      "M-A": {
+        title: "¿Tienes acceso al sector forestal exportador?",
+        sub: "Buscamos un aliado —gerente, consultor de cadena de custodia o contacto ABT— para validar un expediente EUDR sobre un embarque real. Tú abres puertas; nosotros desarrollamos.",
+      },
+      "M-B": {
+        title: "Trazabilidad verificable para la madera boliviana de exportación.",
+        sub: "Origen legal y cadena de custodia que complementan tu CFO/FSC con el expediente que exige el importador. Buscamos un socio con experiencia y contacto institucional forestal.",
+      },
+    },
     triage: {
       question: "¿Cómo te relacionas con el sector forestal?",
       options: [
@@ -215,6 +236,16 @@ window.MARKETS = {
         "Buscamos un aliado del sector aurífero formal para validar un sistema de compliance y trazabilidad documental.",
       sub: "Sin tokenización ni compra de oro: un expediente verificable, alineado a OCDE/LBMA, que sustenta el origen ante BCB, refinerías y banca.",
     },
+    heroVariants: {
+      "O-A": {
+        title: "Compliance y trazabilidad documental para el oro formal.",
+        sub: "Sin tokenización ni compra de oro: un expediente verificable (OCDE/LBMA) para comercializadoras formales. Buscamos un aliado con acceso al sector.",
+      },
+      "O-B": {
+        title: "Expediente de origen verificable para el oro formal.",
+        sub: "Sustenta el origen ante BCB, refinerías y banca, sin papeles dispersos. Buscamos un socio con contacto en comercializadoras formales, reguladores o banca. Es cumplimiento, no inversión.",
+      },
+    },
     triage: {
       question: "¿Cómo te relacionas con el sector aurífero formal?",
       options: [
@@ -311,6 +342,16 @@ window.MARKETS = {
       title:
         "Iniciativa de investigación: trazabilidad voluntaria de origen del oro y preformalización responsable, con identidad digital.",
       sub: "Convocamos a aliados regulatorios, institucionales, técnicos y académicos a una mesa de diálogo. No se ofrecen ni venden activos.",
+    },
+    heroVariants: {
+      "S-A": {
+        title: "Preformalización responsable del oro: una mesa de investigación.",
+        sub: "Trazabilidad voluntaria de origen con identidad digital. Convocamos a perfiles regulatorios, técnicos y académicos. No es una oferta de inversión.",
+      },
+      "S-B": {
+        title: "Proyecto de investigación: tokenización para preformalización del oro.",
+        sub: "Estudiamos la tokenización solo como trazabilidad y registro de origen, en marco normativo. No es oro digital, no es inversión y no se compran tokens.",
+      },
     },
     triage: {
       question: "¿Cuál es tu perfil?",

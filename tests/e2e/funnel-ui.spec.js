@@ -39,6 +39,7 @@ test('recorrido completo del embudo (cafe, con acceso)', async ({ page }) => {
   // Maximo valor (final ask)
   await page.locator('.options .opt').first().click();
 
-  // Gracias
-  await expect(page.locator('.title')).toContainText('Registro verificado');
+  // Gracias: pantalla final (calificado => "Tu perfil encaja"; si no => "Registro verificado")
+  await expect(page.locator(".title")).toContainText(/Tu perfil encaja|Registro verificado/);
+  await expect(page.locator("#ref")).toBeVisible();
 });
