@@ -49,14 +49,19 @@ app.use((req, res, next) => {
 
 // --- Rate limit simple en memoria (suficiente para MVP) ----------------------
 const hits = new Map();
+const RL_WIN = 60_000, RL_MAX = 30;
+// Poda periodica para que el Map no crezca sin limite (varias instancias en Cloud Run).
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, rec] of hits) if (now - rec.t > RL_WIN) hits.delete(ip);
+}, RL_WIN).unref();
 function rateLimit(req, res, next) {
   const ip = (req.headers['x-forwarded-for'] || req.ip || 'x').split(',')[0].trim();
   const now = Date.now();
-  const win = 60_000, max = 30;
   const rec = hits.get(ip) || { c: 0, t: now };
-  if (now - rec.t > win) { rec.c = 0; rec.t = now; }
+  if (now - rec.t > RL_WIN) { rec.c = 0; rec.t = now; }
   rec.c++; hits.set(ip, rec);
-  if (rec.c > max) return res.status(429).json({ ok: false, error: 'rate_limited' });
+  if (rec.c > RL_MAX) return res.status(429).json({ ok: false, error: 'rate_limited' });
   next();
 }
 

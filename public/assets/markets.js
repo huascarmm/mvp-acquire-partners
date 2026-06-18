@@ -108,7 +108,7 @@ window.MARKETS = {
 
   madera: {
     key: "madera",
-    accent: "#5E7D52", // verde bosque
+    accent: "#6E9460", // verde bosque (igual que styles.css)
     eyebrow: "Madera · EUDR",
     hero: {
       title:

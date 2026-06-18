@@ -55,13 +55,11 @@ Abre `http://localhost:8080/funnel.html?m=cafe` para probar un embudo.
 ## Base de datos
 Usa Firestore **`(default)`**. Colecciones: `leads` y `referrals` (se crean solas). Sube `firestore.rules`.
 
-## Despliegue (resumen; el paso a paso detallado va en otra entrega)
-- **API** → Cloud Run (contenedor del `Dockerfile`). En Cloud Run **no subes llave**: el service account
-  del servicio necesita el rol `roles/datastore.user` y firebase-admin usa ADC.
-- **Frontend** → Firebase Hosting (CDN). `firebase.json` ya reescribe `/api/**` a tu servicio Cloud Run
-  (ajusta `serviceId`/`region`). Alternativa: servir todo desde Cloud Run con `server.js` (un solo servicio).
-- **Admin** → crea el usuario en Firebase Auth (email/password) y pon su correo en `ADMIN_EMAILS`.
-  Completa `window.FIREBASE_CONFIG` en `admin.html` (apiKey, authDomain, projectId).
+## Despliegue (CI/CD)
+El despliegue es automático: **push a `main`** → GitHub Actions despliega una revisión candidata en Cloud Run sin tráfico, corre los tests E2E contra ella y, solo si pasan, promueve el tráfico, publica el frontend en Firebase Hosting y limpia los datos de prueba. El paso a paso de configuración (APIs, service account, secrets, Firebase) está en **`DESPLIEGUE.md`**.
+
+## Tests E2E
+`tests/e2e/` (Playwright) verifican el despliegue completo: `/health`, páginas estáticas, API `lead`/`referral` y el recorrido completo del embudo. Local: `E2E_BASE_URL=http://localhost:8080 npm run test:e2e`.
 
 ## Píxeles de publicidad
 El Pixel de Meta/Facebook y TikTok se configura por producto/mercado en `public/assets/markets.js`:

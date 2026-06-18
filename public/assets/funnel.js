@@ -281,7 +281,7 @@
     if (!bg) return;
     var src = 'assets/img/bg-' + marketKey + '.webp';
     var im = new Image();
-    im.onload = function () { bg.style.backgroundImage = 'url(' + src + ')'; };
+    im.onload = function () { bg.style.backgroundImage = 'url(' + src + ')'; bg.classList.add('is-loaded'); };
     im.src = src;
   })();
 
