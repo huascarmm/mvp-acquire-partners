@@ -41,6 +41,14 @@ window.SITE = {
     ],
   },
 
+  // --- Quiénes somos (footer) y badges del hero ----------------------------
+  about:
+    "Blockchain Consultora es una empresa tecnológica boliviana con más de siete años de experiencia en desarrollo de software, identidad digital, blockchain y trazabilidad. El desarrollo técnico y la implementación del piloto están a nuestro cargo.",
+  badges: [
+    { icon: "dollar", label: "Sin inversión requerida" },
+    { icon: "clock", label: "Encuesta de 2 minutos" },
+  ],
+
   // --- Medición (público) --------------------------------------------------
   ga4: "G-791XKSW1VN", // "G-XXXXXXXXXX"  (déjalo vacío y no se carga GA)
 };

@@ -25,16 +25,39 @@ window.MARKETS = {
         sub: "Tú conoces el negocio; nosotros ponemos la trazabilidad y notarización que pide Europa. Co-creamos el piloto. Buscamos un experto de la industria, no inversión.",
       },
     },
-    pitch: {
-      opportunity:
-        "El café boliviano debe demostrar origen, parcela y cumplimiento ante compradores cada vez más exigentes. Pocas cooperativas y exportadores tienen hoy una solución local y simple.",
-      alliance: [
-        "Tú aportas mercado y contactos.",
-        "Nosotros, la tecnología y el piloto.",
-        "Juntos validamos con actores serios.",
-      ],
-      authority:
-        "Blockchain Consultora: +7 años desarrollando software, blockchain, identidad digital y trazabilidad. El desarrollo lo hacemos nosotros.",
+    landing: {
+      context: {
+        title: "¿Qué está cambiando?",
+        body: "Los compradores piden evidencia más organizada sobre parcelas, lotes, origen y cumplimiento. En muchas organizaciones esa información sigue dispersa entre documentos, hojas de cálculo y registros de campo.",
+        keywords: [
+          { icon: "seedling", label: "Parcela" },
+          { icon: "jar", label: "Lote" },
+          { icon: "doc", label: "Evidencia" },
+        ],
+      },
+      seeking: {
+        title: "¿A quién buscamos?",
+        items: [
+          "Alguien que conecte organizaciones del sector.",
+          "Alguien que pueda facilitar una reunión real.",
+          "Alguien que comprenda cómo opera la cadena del café.",
+        ],
+        note: "No necesitas ser especialista en tecnología.",
+      },
+      alliance: {
+        title: "Una alianza con responsabilidades claras",
+        steps: [
+          "Tú aportas conocimiento y acceso al mercado.",
+          "Nosotros desarrollamos la solución.",
+          "Juntos validamos el piloto con un actor real.",
+        ],
+      },
+      cta: {
+        title: "¿Puedes acercarnos a un actor del sector café?",
+        sub: "Responde unas preguntas breves para evaluar una posible colaboración.",
+        label: "Evaluar si puedo aportar",
+        refNote: "También podrás recomendar a otra persona.",
+      },
     },
     triage: {
       question: "¿Cómo te relacionas con el sector café?",
@@ -147,16 +170,39 @@ window.MARKETS = {
         sub: "Origen legal y cadena de custodia que complementan tu CFO/FSC con el expediente que exige el importador. Buscamos un socio con experiencia y contacto institucional forestal.",
       },
     },
-    pitch: {
-      opportunity:
-        "Exportar madera exige expedientes sólidos: origen legal, cadena de custodia y evidencia verificable. El CFO y el FSC ayudan, pero el comprador internacional suele pedir más.",
-      alliance: [
-        "Tú conoces el sector forestal.",
-        "Nosotros construimos el expediente verificable.",
-        "Juntos validamos un piloto sobre un caso real.",
-      ],
-      authority:
-        "Software boliviano con experiencia en sistemas complejos, blockchain y trazabilidad. No reemplazamos CFO/FSC: los complementamos.",
+    landing: {
+      context: {
+        title: "¿Qué está cambiando?",
+        body: "Exportar exige expedientes sólidos: origen legal, cadena de custodia y evidencia verificable. El CFO y el FSC ayudan, pero el comprador internacional suele pedir más.",
+        keywords: [
+          { icon: "doc", label: "Origen legal" },
+          { icon: "jar", label: "Custodia" },
+          { icon: "leaf", label: "Sin deforestación" },
+        ],
+      },
+      seeking: {
+        title: "¿A quién buscamos?",
+        items: [
+          "Alguien con acceso a aserraderos o exportadores.",
+          "Alguien que pueda abrir una reunión real.",
+          "Alguien que conozca CFO, FSC o la ABT.",
+        ],
+        note: "No necesitas ser especialista en tecnología.",
+      },
+      alliance: {
+        title: "Una alianza con responsabilidades claras",
+        steps: [
+          "Tú aportas acceso al sector forestal.",
+          "Nosotros construimos el expediente verificable.",
+          "Juntos validamos un piloto sobre un caso real.",
+        ],
+      },
+      cta: {
+        title: "¿Puedes acercarnos a una empresa forestal exportadora?",
+        sub: "Responde unas preguntas breves para evaluar una posible colaboración.",
+        label: "Evaluar si puedo aportar",
+        refNote: "También podrás recomendar a otra persona.",
+      },
     },
     triage: {
       question: "¿Cómo te relacionas con el sector forestal?",
@@ -268,16 +314,39 @@ window.MARKETS = {
         sub: "Sustenta el origen ante BCB, refinerías y banca, sin papeles dispersos. Buscamos un socio con contacto en comercializadoras formales, reguladores o banca. Es cumplimiento, no inversión.",
       },
     },
-    pitch: {
-      opportunity:
-        "Las comercializadoras y exportadoras formales enfrentan más presión documental: origen, debida diligencia y respaldo ante banca, refinerías y autoridades. Hoy todo eso vive en papel y Excel.",
-      alliance: [
-        "Tú conoces el sector formal.",
-        "Nosotros desarrollamos el expediente verificable.",
-        "Juntos validamos si hay un dolor pagable.",
-      ],
-      authority:
-        "Experiencia en sistemas empresariales, blockchain y trazabilidad, aplicada a compliance documental. No a productos financieros: sin compra, venta ni tokenización de oro.",
+    landing: {
+      context: {
+        title: "¿Qué está cambiando?",
+        body: "Las comercializadoras y exportadoras formales enfrentan más presión documental: origen, debida diligencia y respaldo ante banca, refinerías y autoridades. Hoy todo eso vive en papel y Excel.",
+        keywords: [
+          { icon: "doc", label: "Origen" },
+          { icon: "info", label: "Diligencia" },
+          { icon: "shield", label: "Auditoría" },
+        ],
+      },
+      seeking: {
+        title: "¿A quién buscamos?",
+        items: [
+          "Alguien con acceso a comercializadoras o exportadoras formales.",
+          "Alguien que conecte con abogados AML, banca o reguladores.",
+          "Alguien que conozca el flujo documental del sector.",
+        ],
+        note: "No necesitas ser especialista en tecnología.",
+      },
+      alliance: {
+        title: "Una alianza con responsabilidades claras",
+        steps: [
+          "Tú aportas acceso al sector formal.",
+          "Nosotros desarrollamos el expediente verificable.",
+          "Juntos validamos si hay un dolor pagable.",
+        ],
+      },
+      cta: {
+        title: "¿Puedes acercarnos a una comercializadora o estudio AML?",
+        sub: "Responde unas preguntas breves para evaluar una posible colaboración. No es compra, venta ni tokenización de oro.",
+        label: "Evaluar si puedo aportar",
+        refNote: "También podrás recomendar a otra persona.",
+      },
     },
     triage: {
       question: "¿Cómo te relacionas con el sector aurífero formal?",
@@ -386,16 +455,39 @@ window.MARKETS = {
         sub: "Estudiamos la tokenización solo como trazabilidad y registro de origen, en marco normativo. No es oro digital, no es inversión y no se compran tokens.",
       },
     },
-    pitch: {
-      opportunity:
-        "La pregunta no es cómo vender oro tokenizado, sino si la identidad digital, los registros verificables y la trazabilidad pueden documentar mejor el origen del oro, en un marco normativo y responsable.",
-      alliance: [
-        "No es inversión.",
-        "No es venta de activos.",
-        "Es investigación institucional sobre trazabilidad responsable.",
-      ],
-      authority:
-        "Aporte técnico en blockchain, identidad digital y trazabilidad. La conversación se plantea desde investigación, política pública e innovación responsable.",
+    landing: {
+      context: {
+        title: "¿Qué estamos explorando?",
+        body: "La pregunta no es cómo vender oro tokenizado, sino si la identidad digital, los registros verificables y la trazabilidad pueden documentar mejor el origen del oro, en un marco normativo y responsable.",
+        keywords: [
+          { icon: "doc", label: "Trazabilidad" },
+          { icon: "check", label: "Identidad" },
+          { icon: "shield", label: "Normativa" },
+        ],
+      },
+      seeking: {
+        title: "¿A quién convocamos?",
+        items: [
+          "Perfiles regulatorios, jurídicos o de política pública.",
+          "Academia, cooperación o minería responsable.",
+          "Identidad digital, innovación pública o sandbox.",
+        ],
+        note: "No es una convocatoria comercial ni de inversión.",
+      },
+      alliance: {
+        title: "Reglas claras de la mesa",
+        steps: [
+          "No es inversión.",
+          "No es venta de activos.",
+          "Es investigación institucional sobre trazabilidad responsable.",
+        ],
+      },
+      cta: {
+        title: "¿Quieres sumarte a la mesa de investigación?",
+        sub: "Responde unas preguntas breves; te contactaremos para una mesa de diálogo.",
+        label: "Sumarme a la mesa de investigación",
+        refNote: "También puedes referir a otra institución.",
+      },
     },
     triage: {
       question: "¿Cuál es tu perfil?",

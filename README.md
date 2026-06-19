@@ -87,3 +87,8 @@ si alguien abandona a mitad, queda registrado en la etapa alcanzada y lo ves en 
 - **Google Analytics 4:** pon tu `G-XXXX` en `public/assets/site.js`. Mide rebote, origen del tráfico y el embudo (`funnel_start`, `funnel_stage`, `generate_lead`, `qualified_lead`, `referral`).
 - **Credibilidad / contacto:** edita `public/assets/site.js` (marca, puntos, WhatsApp, Calendly, logos en `assets/img/logos/`). Sin LinkedIn. WhatsApp y Calendly se muestran cuando el lead califica.
 - **Variantes de landing:** cada anuncio puede llevar `?v=C-A` (etc.) y la landing muestra el hero que hace *message-match* con ese anuncio (`heroVariants` en `markets.js`). Una sola landing por mercado.
+
+## Tests (unitarios + e2e + aceptación)
+- `npm run test:unit` — unitarios (node:test): normalización de teléfono y payload del Conversions API (envía `lead_score`, no `value` en USD; hashea email/teléfono; usa Graph API v25.0) y el scoring. Sin red (mockea `fetch`).
+- `npm run test:e2e` — Playwright contra `E2E_BASE_URL`: `health`, estáticos, contratos de API (Firestore), recorrido completo del embudo, **tracking** (dispara Meta Pixel `Lead` y eventos GA4) y **aceptación** (las 6 secciones del landing, header enlazado, GA4 + Pixel inicializados, `eventId` estable).
+- `npm test` — corre unit + e2e. En CI ya se ejecutan tras desplegar la revisión candidata.

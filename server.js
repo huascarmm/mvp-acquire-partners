@@ -19,7 +19,6 @@ const express = require('express');
 const admin = require('firebase-admin');
 const { computeScore, leadTypeFor } = require('./lib/scoring');
 const { sendMetaEvent } = require('./lib/meta-capi');
-const crypto = require('crypto');
 
 const PROJECT_ID = process.env.FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT;
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
@@ -119,19 +118,28 @@ app.post('/api/lead', rateLimit, async (req, res) => {
     // Devuelve un eventId para que el navegador deduplique el mismo evento.
     let eventId;
     if (Number(b.stageReached) >= 4) {
-      eventId = crypto.randomUUID();
+      // event_id estable: evita conversiones duplicadas si se reintenta el envío.
+      eventId = `${b.sessionId}:lead`;
       const meta = b.meta || {};
       const evCommon = {
         score,
         contact: merged.contact,
         ip: (req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim(),
         ua: req.headers['user-agent'] || '',
-        fbp: meta.fbp, fbc: meta.fbc,
-        sourceUrl: meta.sourceUrl,
+        fbp: meta.fbp || '', fbc: meta.fbc || '',
+        sourceUrl: meta.sourceUrl || '',
       };
-      // No bloquea la respuesta:
-      sendMetaEvent(merged.market, { ...evCommon, eventName: 'Lead', eventId });
-      if (qualified) sendMetaEvent(merged.market, { ...evCommon, eventName: 'LeadCalificado', eventId: eventId + ':q' });
+      const metaJobs = [
+        sendMetaEvent(merged.market, { ...evCommon, eventName: 'Lead', eventId }),
+      ];
+      if (qualified) {
+        metaJobs.push(
+          sendMetaEvent(merged.market, { ...evCommon, eventName: 'LeadCalificado', eventId: `${b.sessionId}:qualified` }),
+        );
+      }
+      // Espera a Meta antes de responder (en Cloud Run el trabajo post-respuesta puede no ejecutarse).
+      const metaResults = await Promise.allSettled(metaJobs);
+      metaResults.forEach((r) => { if (r.status === 'rejected') console.error('CAPI rejected:', r.reason); });
     }
 
     // No devolvemos el score numérico; sí el tipo y si califica (para los eventos).

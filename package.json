@@ -13,7 +13,9 @@
     "test:e2e:ui": "E2E_FULL_UI=1 playwright test",
     "cleanup:e2e": "node tests/cleanup.js",
     "optimize:images": "node scripts/optimize-images.js",
-    "optimize:images:clean": "node scripts/optimize-images.js --delete-png"
+    "optimize:images:clean": "node scripts/optimize-images.js --delete-png",
+    "test:unit": "node --test tests/unit/*.test.js",
+    "test": "npm run test:unit && npm run test:e2e"
   },
   "dependencies": {
     "express": "^4.22.2",
