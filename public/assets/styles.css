@@ -475,20 +475,82 @@ h1.title {
   margin-right: .4rem;
   font-weight: 700;
 }
+.cred-logos-label {
+  font-family: var(--mono);
+  font-size: .66rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+  margin: 0 0 .6rem;
+}
 .logos {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1.1rem;
-  opacity: .82;
+  gap: .7rem;
 }
+/* Logos en color sobre un "chip" sutil (estos logos están pensados para fondo
+   oscuro: marcas claras/doradas). El chip unifica los que traen su propio fondo. */
 .logos img {
-  height: 30px;
+  height: 52px;
   width: auto;
-  filter: grayscale(1) brightness(1.6);
-  opacity: .85;
+  max-width: 150px;
+  object-fit: contain;
+  padding: .5rem .7rem;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid var(--hair);
+  border-radius: 12px;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .logos img { transition: opacity .2s ease, filter .2s ease; }
-  .logos img:hover { opacity: 1; filter: none; }
+  .logos img { transition: background .2s ease, border-color .2s ease; }
 }
+.logos img:hover { background: rgba(255, 255, 255, .09); border-color: var(--hair-strong); }
+
+/* Logo de marca en el header --------------------------------------------------*/
+.brand-logo { height: 22px; width: auto; display: block; }
+@media (max-width: 480px) { .brand-logo { height: 19px; } }
+
+/* Bloque persuasivo (pitch) ---------------------------------------------------*/
+.pitch { margin-top: 1.8rem; display: grid; gap: 1rem; }
+.ico {
+  width: 18px; height: 18px;
+  flex: 0 0 auto;
+  color: var(--accent);
+  margin-top: .18rem;
+}
+.pitch-op {
+  display: flex; gap: .65rem;
+  margin: 0;
+  font-size: .96rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+.pitch-ally {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: .55rem;
+  border-left: 2px solid var(--accent-soft);
+  padding-left: .9rem;
+}
+.pitch-ally li {
+  display: flex; align-items: center; gap: .6rem;
+  font-size: .92rem; font-weight: 560; color: var(--text);
+}
+.pitch-ally .ico { margin-top: 0; }
+.pitch-auth {
+  display: flex; gap: .65rem;
+  margin: 0;
+  font-size: .82rem; line-height: 1.5;
+  color: var(--muted);
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  padding: .8rem .9rem;
+}
+.pitch-auth .ico { color: var(--ok); }
+.pitch-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: .88rem;
+  font-weight: 560;
+}
+.pitch-link:hover { text-decoration: underline; }

@@ -122,7 +122,7 @@
       '<div class="cred">' +
       (line ? '<p class="cred-line">' + esc(line) + "</p>" : "") +
       (pts ? '<ul class="cred-pts">' + pts + "</ul>" : "") +
-      (logos ? '<div class="logos">' + logos + "</div>" : "") +
+      (logos ? '<p class="cred-logos-label">Experiencia y aliados</p><div class="logos">' + logos + "</div>" : "") +
       "</div>"
     );
   }
@@ -160,13 +160,78 @@
     };
   }
 
+  // Elige el hero: 1) si la URL trae ?v= y existe, usa esa variante (match con
+  // el anuncio); 2) si hay variantes, elige una AL AZAR; 3) si no hay, el hero base.
+  function pickHero() {
+    if (M.heroVariants) {
+      var v = campaign.variant;
+      if (v && M.heroVariants[v]) return M.heroVariants[v];
+      var keys = Object.keys(M.heroVariants);
+      if (keys.length) return M.heroVariants[keys[Math.floor(Math.random() * keys.length)]];
+    }
+    return M.hero;
+  }
+
+  function waHref() {
+    var S = window.SITE || {};
+    var cta = M.cta || {};
+    var wa = String(cta.whatsapp || S.whatsapp || "").replace(/\D/g, "");
+    if (!wa) return "";
+    var msg = encodeURIComponent(
+      String(cta.whatsappMsg || S.whatsappMsg || "Hola").replace("{market}", M.eyebrow || marketKey),
+    );
+    return "https://wa.me/" + wa + "?text=" + msg;
+  }
+
+  // Iconos SVG en línea (livianos, currentColor) para escanear rápido el pitch.
+  function icon(n) {
+    var p = {
+      op: '<path d="M3 17l5-5 4 4 7-8"/><path d="M16 8h5v5"/>',
+      market: '<path d="M3 9l1-4h16l1 4"/><path d="M5 9v10h14V9"/><path d="M9 19v-5h6v5"/>',
+      tech: '<path d="M9 7l-5 5 5 5"/><path d="M15 7l5 5-5 5"/>',
+      join: '<circle cx="7.5" cy="8" r="2.2"/><circle cx="16.5" cy="8" r="2.2"/><path d="M4 18a3.5 3.5 0 0 1 7 0"/><path d="M13 18a3.5 3.5 0 0 1 7 0"/>',
+      shield: '<path d="M12 3l7 3v6c0 5-3 7-7 9-4-2-7-4-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
+    }[n] || "";
+    return (
+      '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      p + "</svg>"
+    );
+  }
+
+  // Bloque persuasivo (oportunidad + frase de alianza + autoridad) por mercado.
+  function pitchHTML() {
+    var p = M.pitch;
+    if (!p) return "";
+    var allyIcons = ["market", "tech", "join"];
+    var ally = (p.alliance || [])
+      .map(function (x, i) {
+        return "<li>" + icon(allyIcons[i] || "join") + "<span>" + esc(x) + "</span></li>";
+      })
+      .join("");
+    return (
+      '<div class="pitch">' +
+      (p.opportunity ? '<p class="pitch-op">' + icon("op") + "<span>" + esc(p.opportunity) + "</span></p>" : "") +
+      (ally ? '<ul class="pitch-ally">' + ally + "</ul>" : "") +
+      (p.authority ? '<p class="pitch-auth">' + icon("shield") + "<span>" + esc(p.authority) + "</span></p>" : "") +
+      "</div>"
+    );
+  }
+
   /* 0) HERO */
   function stepHero() {
     setProgress(6);
-    var hero = (M.heroVariants && M.heroVariants[campaign.variant]) || M.hero;
-    var dis = M.disclaimer
-      ? '<div class="disclaimer">' + esc(M.disclaimer) + "</div>"
+    var hero = pickHero();
+    var S = window.SITE || {};
+    var dis = M.disclaimer ? '<div class="disclaimer">' + esc(M.disclaimer) + "</div>" : "";
+    var wa = waHref();
+    var waLink = wa
+      ? '<a class="pitch-link" id="wahero" href="' + wa + '" target="_blank" rel="noopener">o escríbenos directo por WhatsApp →</a>'
       : "";
+    var portfolio = S.portfolio
+      ? '<a class="pitch-link" href="' + esc(S.portfolio) + '" target="_blank" rel="noopener">Ver portafolio →</a>'
+      : "";
+    var ctaLabel = (M.cta && M.cta.label) || "Postular como socio estratégico";
     var node = el(
       '<div class="step">' +
         '<p class="eyebrow">' + esc(M.eyebrow) + "</p>" +
@@ -174,14 +239,26 @@
         '<h1 class="title">' + esc(hero.title) + "</h1>" +
         '<p class="sub">' + esc(hero.sub) + "</p>" +
         '<button class="btn full" id="go">Soy un posible aliado <span class="arrow">&rarr;</span></button>' +
-        '<p class="foot">Menos de 2 minutos. Buscamos acceso real al mercado, no inversion.</p>' +
+        (waLink ? '<p class="foot" style="margin-top:.7rem">' + waLink + "</p>" : "") +
+        pitchHTML() +
+        (portfolio ? '<p style="margin:.4rem 0 0">' + portfolio + "</p>" : "") +
         credibilityHTML() +
+        '<button class="btn full" id="go2" style="margin-top:1.6rem">' + esc(ctaLabel) + ' <span class="arrow">&rarr;</span></button>' +
+        '<p class="foot">Menos de 2 minutos. Buscamos acceso real al mercado, no inversión.</p>' +
         "</div>",
     );
-    node.querySelector("#go").onclick = function () {
+    function start() {
       if (window.SocioPixels) SocioPixels.funnelStart();
       if (window.SocioAnalytics) SocioAnalytics.event("funnel_start", { market: marketKey });
       stepTriage();
+    }
+    node.querySelector("#go").onclick = start;
+    var g2 = node.querySelector("#go2");
+    if (g2) g2.onclick = start;
+    var wh = node.querySelector("#wahero");
+    if (wh) wh.onclick = function () {
+      if (window.SocioPixels) SocioPixels.contact(marketKey);
+      if (window.SocioAnalytics) SocioAnalytics.event("cta_whatsapp", { market: marketKey });
     };
     if (window.SocioPixels) SocioPixels.viewContent();
     render(node);
