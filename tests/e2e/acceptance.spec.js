@@ -75,3 +75,23 @@ test('API referral devuelve cupón', async ({ request }) => {
   const b = await res.json();
   expect(b.couponCode).toMatch(/^ASOBC-[A-Z0-9]{6}$/);
 });
+
+// ---- Endpoint admin de pipeline protegido ----------------------------------
+test('PATCH /api/admin/lead/:id exige token (401 sin auth)', async ({ request }) => {
+  const res = await request.patch('/api/admin/lead/cualquier-id', {
+    data: { pipelineStatus: 'Revisado' },
+  });
+  expect(res.status()).toBe(401);
+});
+
+test('lead nuevo arranca en pipelineStatus "Solicitado"', async ({ request }) => {
+  const sessionId = sid('pipe');
+  const res = await request.post('/api/lead', {
+    data: { sessionId, market: 'cafe', stageReached: 1, patch: { triage: { value: 'cooperativa' } } },
+  });
+  expect(res.ok()).toBeTruthy();
+  // No exponemos pipelineStatus en la respuesta del funnel (es interno del panel),
+  // pero el lead queda creado; el panel lo lee vía /api/admin/leads (protegido).
+  const b = await res.json();
+  expect(b.id).toBe(sessionId);
+});

@@ -27,7 +27,7 @@ test('sendMetaEvent envía lead_score (no value USD), hashea email/teléfono y u
   };
   try {
     const r = await sendMetaEvent('cafe', {
-      eventName: 'Lead', eventId: 's1:lead', score: 80,
+      eventName: 'Lead', eventId: 's1:lead', score: 80, leadType: 'A',
       contact: { email: 'A@B.com', whatsapp: '70000000' },
       ip: '1.2.3.4', ua: 'UA', sourceUrl: 'https://x.test/funnel.html?m=cafe',
     });
@@ -39,6 +39,7 @@ test('sendMetaEvent envía lead_score (no value USD), hashea email/teléfono y u
     assert.equal(d.action_source, 'website');
     assert.equal(d.event_source_url, 'https://x.test/funnel.html?m=cafe');
     assert.equal(d.custom_data.lead_score, 80);
+    assert.equal(d.custom_data.lead_type, 'A');       // calidad para optimizar hacia A
     assert.equal(d.custom_data.value, undefined);    // NO debe enviarse como USD
     assert.equal(d.custom_data.currency, undefined);
     assert.ok(Array.isArray(d.user_data.em) && d.user_data.em[0].length === 64);

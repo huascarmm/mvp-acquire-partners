@@ -71,6 +71,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Tests unitarios (CAPI/scoring, sin red)
+        run: npm run test:unit
       - run: npx playwright install --with-deps chromium
       - name: Tests E2E contra la revision candidata
         env:

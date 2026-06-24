@@ -42,7 +42,7 @@ app.use((req, res, next) => {
   if (ALLOWED_ORIGIN) {
     res.set('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
     res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
     if (req.method === 'OPTIONS') return res.status(204).end();
   }
   next();
@@ -109,7 +109,7 @@ app.post('/api/lead', rateLimit, async (req, res) => {
       ...merged,
       score, leadType, status,
       updatedAt: now,
-      ...(snap.exists ? {} : { createdAt: now })
+      ...(snap.exists ? {} : { createdAt: now, pipelineStatus: 'Solicitado' })
     }, { merge: true });
 
     const qualified = leadType === 'A' || leadType === 'B';
@@ -123,6 +123,7 @@ app.post('/api/lead', rateLimit, async (req, res) => {
       const meta = b.meta || {};
       const evCommon = {
         score,
+        leadType,
         contact: merged.contact,
         ip: (req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim(),
         ua: req.headers['user-agent'] || '',
@@ -135,6 +136,12 @@ app.post('/api/lead', rateLimit, async (req, res) => {
       if (qualified) {
         metaJobs.push(
           sendMetaEvent(merged.market, { ...evCommon, eventName: 'LeadCalificado', eventId: `${b.sessionId}:qualified` }),
+        );
+      }
+      // Evento dedicado para Tipo A (el de mayor valor) — optimiza campañas hacia "A".
+      if (leadType === 'A') {
+        metaJobs.push(
+          sendMetaEvent(merged.market, { ...evCommon, eventName: 'LeadA', eventId: `${b.sessionId}:a` }),
         );
       }
       // Espera a Meta antes de responder (en Cloud Run el trabajo post-respuesta puede no ejecutarse).
@@ -220,6 +227,8 @@ app.get('/api/admin/leads', requireAdmin, async (req, res) => {
       return {
         id: d.id, market: x.market, stageReached: x.stageReached || 0,
         status: x.status, leadType: x.leadType, score: x.score,
+        pipelineStatus: x.pipelineStatus || 'Solicitado',
+        adminNotes: x.adminNotes || '', rating: x.rating || 0, ratingComment: x.ratingComment || '',
         contact: x.contact || {}, marketAccess: x.marketAccess || {},
         qualification: x.qualification || {}, finalAsk: x.finalAsk || {},
         campaign: x.campaign || {},
@@ -260,6 +269,44 @@ app.get('/api/admin/stats', requireAdmin, async (req, res) => {
     res.json({ ok: true, stats });
   } catch (e) {
     console.error('admin stats error', e);
+    res.status(500).json({ ok: false, error: 'server' });
+  }
+});
+
+// --- PATCH /api/admin/lead/:id : estado de pipeline, notas y rating ----------
+const PIPELINE_STATES = new Set([
+  'Solicitado', 'Revisado', 'Agendado', 'Primera Reunión', 'Segunda Reunión',
+  'Trabajando', 'Cerrado', 'Cerrado con feedback'
+]);
+app.patch('/api/admin/lead/:id', requireAdmin, async (req, res) => {
+  try {
+    const id = clean(req.params.id, 200);
+    if (!id) return res.status(400).json({ ok: false, error: 'bad_id' });
+    const b = req.body || {};
+    const update = { updatedAt: admin.firestore.FieldValue.serverTimestamp() };
+
+    if (b.pipelineStatus !== undefined) {
+      if (!PIPELINE_STATES.has(b.pipelineStatus)) return res.status(400).json({ ok: false, error: 'bad_status' });
+      update.pipelineStatus = b.pipelineStatus;
+    }
+    if (b.adminNotes !== undefined) update.adminNotes = clean(b.adminNotes, 4000);
+    if (b.ratingComment !== undefined) update.ratingComment = clean(b.ratingComment, 2000);
+    if (b.rating !== undefined) {
+      const r = Math.round(Number(b.rating));
+      if (!Number.isFinite(r) || r < 0 || r > 5) return res.status(400).json({ ok: false, error: 'bad_rating' });
+      update.rating = r;
+    }
+    if (Object.keys(update).length === 1) return res.status(400).json({ ok: false, error: 'nothing_to_update' });
+
+    update.reviewedBy = req.adminEmail;
+    update.reviewedAt = admin.firestore.FieldValue.serverTimestamp();
+    const ref = db.collection('leads').doc(id);
+    const snap = await ref.get();
+    if (!snap.exists) return res.status(404).json({ ok: false, error: 'not_found' });
+    await ref.set(update, { merge: true });
+    res.json({ ok: true, id, updated: Object.keys(update).filter(k => k !== 'updatedAt' && k !== 'reviewedAt' && k !== 'reviewedBy') });
+  } catch (e) {
+    console.error('admin patch error', e);
     res.status(500).json({ ok: false, error: 'server' });
   }
 });

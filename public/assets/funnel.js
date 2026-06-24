@@ -533,9 +533,12 @@
           resp = resp || {};
           var ev = resp.eventId;
           if (M.pixelLeadEvent && window.SocioPixels) {
-            SocioPixels.lead(marketKey, ev);
+            SocioPixels.lead(marketKey, ev, resp.leadType);
             if (resp.qualified) {
               SocioPixels.leadQualified(marketKey, ev ? ev.replace(/:lead$/, ":qualified") : undefined);
+            }
+            if (resp.leadType === "A") {
+              SocioPixels.leadA(marketKey, ev ? ev.replace(/:lead$/, ":a") : undefined);
             }
           }
           if (window.SocioAnalytics) {
