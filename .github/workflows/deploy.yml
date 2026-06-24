@@ -11,7 +11,7 @@ on:
 
 env:
   REGION: us-central1
-  SERVICE: socio-funnel          # = repo de Artifact Registry y serviceId en firebase.json
+  SERVICE: socio-funnel # = repo de Artifact Registry y serviceId en firebase.json
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   ADMIN_EMAILS: ${{ secrets.ADMIN_EMAILS }}
 
@@ -54,12 +54,30 @@ jobs:
             --allow-unauthenticated \
             --tag "$TAG" \
             --no-traffic \
-            --set-env-vars "FIREBASE_PROJECT_ID=$PROJECT_ID,ADMIN_EMAILS=$ADMIN_EMAILS"
+            --update-env-vars "FIREBASE_PROJECT_ID=$PROJECT_ID,ADMIN_EMAILS=$ADMIN_EMAILS,META_GRAPH_VERSION=v25.0" \
+            --update-secrets "META_CAPI=meta-capi:latest"
+
           URL=$(gcloud run services describe "$SERVICE" --project "$PROJECT_ID" --region "$REGION" --format=json \
             | jq -r --arg t "$TAG" '.status.traffic[] | select(.tag==$t) | .url')
           echo "Candidate URL: $URL"
           echo "url=$URL" >> "$GITHUB_OUTPUT"
 
+      - name: Verificar configuración CAPI
+        run: |
+          set -e
+
+          gcloud run services describe "$SERVICE" \
+            --project "$PROJECT_ID" \
+            --region "$REGION" \
+            --format=json \
+            | jq -e '
+                any(
+                  .spec.template.spec.containers[0].env[]?;
+                  .name == "META_CAPI"
+                )
+              '
+
+          echo "OK: META_CAPI está montada en Cloud Run"
   # ---------------------------------------------------------------------------
   e2e:
     needs: deploy-candidate
