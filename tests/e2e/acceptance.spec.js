@@ -95,3 +95,13 @@ test('lead nuevo arranca en pipelineStatus "Solicitado"', async ({ request }) =>
   const b = await res.json();
   expect(b.id).toBe(sessionId);
 });
+
+test('POST /api/admin/leads exige token (401 sin auth)', async ({ request }) => {
+  const res = await request.post('/api/admin/leads', {
+    data: {
+      market: 'cafe',
+      contact: { name: 'Manual', whatsapp: '70000000' }
+    }
+  });
+  expect(res.status()).toBe(401);
+});

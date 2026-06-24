@@ -18,7 +18,7 @@
     <style>
       /* estilos propios del panel (compactos) */
       .admin {
-        max-width: 1100px;
+        max-width: 1380px;
         margin: 0 auto;
         padding: 80px 20px 60px;
       }
@@ -188,9 +188,45 @@
       .st-sel { background: var(--surface-2); border: 1px solid var(--hair); color: var(--text); border-radius: 8px; padding: 0.3rem 0.4rem; font-size: 0.82rem; max-width: 152px; }
       td a.open { color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--hair-strong); }
       td a.open:hover { color: var(--accent); }
-      .notes-inp { width: 170px; background: var(--surface-2); border: 1px solid var(--hair); color: var(--text); border-radius: 8px; padding: 0.35rem 0.5rem; font-size: 0.82rem; }
-      .notes-inp:disabled { background: transparent; border-color: transparent; color: var(--muted); cursor: text; }
-      .notes-inp:not(:disabled) { border-color: var(--accent); }
+      .table-scroll { width: 100%; overflow-x: auto; border: 1px solid var(--hair); border-radius: 12px; }
+      .table-scroll table { min-width: 1120px; }
+      .table-scroll th:first-child, .table-scroll td:first-child { padding-left: .75rem; }
+      .row-sub { font-size: .8rem; }
+      .manual-tag { display: inline-block; margin-left: .35rem; padding: .08rem .35rem; border-radius: 999px; border: 1px solid rgba(79,209,197,.4); color: #7de1d8; font-family: var(--mono); font-size: .58rem; letter-spacing: .06em; text-transform: uppercase; }
+      .notes-inp { width: 190px; background: var(--surface-2); border: 1px solid var(--hair); color: var(--text); border-radius: 8px; padding: 0.35rem 0.5rem; font-size: 0.82rem; transition: border-color .15s ease, opacity .15s ease, background .15s ease; }
+      .notes-inp[readonly] { background: transparent; border-color: transparent; color: var(--muted); cursor: text; }
+      .notes-inp.editing { border-color: var(--accent); background: var(--surface-2); color: var(--text); outline: none; box-shadow: 0 0 0 2px var(--accent-soft); }
+      .notes-inp.saving { opacity: .55; }
+      .notes-inp.save-error { border-color: #f2a3a3; }
+
+      /* Alta manual de leads */
+      .manual-sheet { max-width: 900px; padding: 0; }
+      .manual-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.25rem 1.35rem; background: var(--surface); border-bottom: 1px solid var(--hair); }
+      .manual-head h2 { margin: .15rem 0 .25rem; }
+      .manual-head p { margin: 0; }
+      .icon-close { border: 1px solid var(--hair); background: transparent; color: var(--muted); border-radius: 9px; min-width: 38px; height: 38px; cursor: pointer; font-size: 1.2rem; }
+      .icon-close:hover { color: var(--text); border-color: var(--accent); }
+      .manual-form { padding: 1.25rem 1.35rem 1.4rem; }
+      .form-section { padding: 1rem; margin-bottom: .9rem; border: 1px solid var(--hair); border-radius: 13px; background: rgba(255,255,255,.015); }
+      .form-section h3 { margin: 0 0 .8rem; font-size: 1rem; }
+      .form-section .hint { margin: -.35rem 0 .85rem; color: var(--muted); font-size: .82rem; }
+      .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+      .form-grid .wide { grid-column: 1 / -1; }
+      .manual-form .field { margin: 0; }
+      .manual-form .field input, .manual-form .field textarea, .manual-form .field select { box-sizing: border-box; width: 100%; background: var(--surface-2); border: 1px solid var(--hair); color: var(--text); border-radius: 10px; padding: .68rem .75rem; font: inherit; }
+      .manual-form .field textarea { min-height: 78px; resize: vertical; }
+      .manual-form .field input:focus, .manual-form .field textarea:focus, .manual-form .field select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+      .check-row { display: flex; align-items: center; gap: .55rem; min-height: 42px; color: var(--text); }
+      .check-row input { width: 18px !important; height: 18px; accent-color: var(--accent); }
+      .access-hint { margin: .55rem 0 0; font-size: .8rem; color: #f0c98a; }
+      .access-hint.positive { color: #7cf0c0; }
+      .form-actions { display: flex; justify-content: flex-end; gap: .65rem; padding-top: .35rem; }
+      .form-actions .btn { width: auto; }
+      .form-error { min-height: 1.25rem; margin: .65rem 0 0; color: #f2a3a3; font-size: .85rem; }
+      .admin-notice { position: fixed; right: 20px; bottom: 20px; z-index: 50; max-width: 420px; margin: 0; padding: .8rem 1rem; border: 1px solid rgba(124,240,192,.45); border-radius: 11px; background: #132825; color: #bdf6dc; box-shadow: 0 16px 45px rgba(0,0,0,.35); opacity: 0; transform: translateY(12px); pointer-events: none; transition: .18s ease; }
+      .admin-notice.show { opacity: 1; transform: none; }
+      .admin-notice.error { border-color: rgba(242,163,163,.55); color: #ffd1d1; }
+      @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr; } .form-grid .wide { grid-column: auto; } .form-actions { flex-direction: column-reverse; } .form-actions .btn { width: 100%; } }
 
       /* Rating con popover */
       .rating { position: relative; display: inline-flex; flex-direction: column; }
@@ -262,14 +298,94 @@
           <option value="4">4 Maximo valor</option>
         </select>
         <input id="fSearch" placeholder="Buscar nombre / empresa..." />
-        <button class="btn ghost" id="csv">Exportar CSV</button>
+        <button class="btn" id="addLead" type="button">+ Añadir lead</button>
+        <button class="btn ghost" id="csv" type="button">Exportar CSV</button>
       </div>
 
       <div id="tableWrap"></div>
     </main>
 
+    <p class="admin-notice" id="notice" role="status" aria-live="polite"></p>
+
     <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 
-    <script type="module" src="assets/admin.js"></script>
+    <div class="modal" id="leadModal" role="dialog" aria-modal="true" aria-labelledby="manualTitle">
+      <div class="sheet manual-sheet">
+        <div class="manual-head">
+          <div>
+            <p class="eyebrow">Registro administrativo</p>
+            <h2 id="manualTitle">Añadir lead manualmente</h2>
+            <p class="muted">Para contactos recibidos por WhatsApp, llamada, correo o de forma presencial.</p>
+          </div>
+          <button class="icon-close" id="manualClose" type="button" aria-label="Cerrar">&times;</button>
+        </div>
+
+        <form class="manual-form" id="manualLeadForm">
+          <section class="form-section">
+            <h3>1. Contacto</h3>
+            <p class="hint">El nombre y al menos un medio de contacto son obligatorios.</p>
+            <div class="form-grid">
+              <div class="field wide"><label for="mlName">Nombre completo *</label><input id="mlName" autocomplete="name" maxlength="160" required /></div>
+              <div class="field"><label for="mlEmail">Email</label><input id="mlEmail" type="email" autocomplete="email" maxlength="160" /></div>
+              <div class="field"><label for="mlWhatsapp">WhatsApp</label><input id="mlWhatsapp" inputmode="tel" autocomplete="tel" maxlength="60" /></div>
+              <div class="field"><label for="mlCompany">Empresa / organización</label><input id="mlCompany" maxlength="200" /></div>
+              <div class="field"><label for="mlRole">Cargo</label><input id="mlRole" maxlength="160" /></div>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h3>2. Mercado y acceso</h3>
+            <div class="form-grid">
+              <div class="field"><label for="mlMarket">Mercado *</label>
+                <select id="mlMarket" required>
+                  <option value="cafe">Café · EUDR</option>
+                  <option value="madera">Madera · EUDR</option>
+                  <option value="oro_compliance">Oro · Compliance</option>
+                  <option value="oro_tokenizado">Investigación institucional</option>
+                </select>
+              </div>
+              <div class="field"><label for="mlRelation">Relación con el mercado *</label><select id="mlRelation" required></select><p class="access-hint" id="mlAccessHint"></p></div>
+              <div class="field wide"><label for="mlActor">Actor, empresa o institución concreta</label><textarea id="mlActor" maxlength="1000" placeholder="Ej. cooperativa, exportador, comercializadora, institución..."></textarea></div>
+              <div class="field"><label for="mlYears">Años en el sector</label><input id="mlYears" type="number" min="0" max="80" step="1" inputmode="numeric" /></div>
+              <div class="field"><label for="mlProof">LinkedIn o enlace de respaldo</label><input id="mlProof" type="url" maxlength="1000" placeholder="https://" /></div>
+              <label class="check-row wide"><input id="mlCanIntroduce" type="checkbox" /> Puede presentarnos a ese actor o decisor</label>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h3>3. Calificación</h3>
+            <p class="hint">Puedes dejar preguntas sin respuesta. El score se calcula automáticamente en el servidor.</p>
+            <div class="form-grid">
+              <div class="field"><label id="mlCanGetMeetingsLabel" for="mlCanGetMeetings">Capacidad de conseguir reuniones</label><select id="mlCanGetMeetings"><option value="">Sin respuesta</option><option value="high">Alto / Sí</option><option value="mid">Medio / Probablemente</option><option value="low">Bajo / Tal vez</option><option value="none">No</option></select></div>
+              <div class="field"><label id="mlCanCofinanceLabel" for="mlCanCofinance">Capacidad de cofinanciar</label><select id="mlCanCofinance"><option value="">Sin respuesta</option><option value="high">Alto / Sí</option><option value="mid">Medio / Probablemente</option><option value="low">Bajo / Tal vez</option><option value="none">No</option></select></div>
+              <div class="field"><label id="mlRegulatoryKnowledgeLabel" for="mlRegulatoryKnowledge">Conocimiento normativo</label><select id="mlRegulatoryKnowledge"><option value="">Sin respuesta</option><option value="high">Alto / Sí</option><option value="mid">Medio / Probablemente</option><option value="low">Bajo / Tal vez</option><option value="none">No</option></select></div>
+              <div class="field"><label id="mlSalesCapacityLabel" for="mlSalesCapacity">Capacidad comercial</label><select id="mlSalesCapacity"><option value="">Sin respuesta</option><option value="high">Alto / Sí</option><option value="mid">Medio / Probablemente</option><option value="low">Bajo / Tal vez</option><option value="none">No</option></select></div>
+              <div class="field wide"><label id="mlFinalLabel" for="mlFinal">Siguiente paso</label><select id="mlFinal"></select></div>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h3>4. Origen y seguimiento interno</h3>
+            <div class="form-grid">
+              <div class="field"><label for="mlChannel">Canal de ingreso</label><select id="mlChannel"><option value="whatsapp">WhatsApp</option><option value="phone">Llamada</option><option value="email">Correo</option><option value="in_person">Presencial</option><option value="linkedin">LinkedIn</option><option value="other">Otro</option></select></div>
+              <div class="field"><label for="mlPipeline">Estado inicial</label><select id="mlPipeline"><option>Solicitado</option><option>Revisado</option><option>Agendado</option><option>Primera Reunión</option><option>Segunda Reunión</option><option>Trabajando</option><option>Cerrado</option><option>Cerrado con feedback</option></select></div>
+              <div class="field"><label for="mlVariant">Variante del anuncio</label><input id="mlVariant" maxlength="120" placeholder="Ej. C-A" /></div>
+              <div class="field"><label for="mlUtmSource">UTM source</label><input id="mlUtmSource" maxlength="160" placeholder="Ej. whatsapp" /></div>
+              <div class="field wide"><label for="mlUtmCampaign">UTM campaign</label><input id="mlUtmCampaign" maxlength="200" /></div>
+              <div class="field wide"><label for="mlNotes">Notas internas</label><textarea id="mlNotes" maxlength="4000" placeholder="Contexto de la conversación, acuerdos o siguiente acción..."></textarea></div>
+            </div>
+          </section>
+
+          <p class="form-error" id="manualError" role="alert"></p>
+          <div class="form-actions">
+            <button class="btn ghost" id="manualCancel" type="button">Cancelar</button>
+            <button class="btn" id="manualSubmit" type="submit">Guardar lead</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="assets/markets.js?v=1.2.0"></script>
+    <script type="module" src="assets/admin.js?v=1.2.0"></script>
   </body>
 </html>

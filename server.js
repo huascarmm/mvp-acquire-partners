@@ -19,6 +19,7 @@ const express = require('express');
 const admin = require('firebase-admin');
 const { computeScore, leadTypeFor } = require('./lib/scoring');
 const { sendMetaEvent } = require('./lib/meta-capi');
+const { buildManualLeadRecord, ManualLeadValidationError, PIPELINE_STATES } = require('./lib/manual-lead');
 
 const PROJECT_ID = process.env.FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT;
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
@@ -231,7 +232,8 @@ app.get('/api/admin/leads', requireAdmin, async (req, res) => {
         adminNotes: x.adminNotes || '', rating: x.rating || 0, ratingComment: x.ratingComment || '',
         contact: x.contact || {}, marketAccess: x.marketAccess || {},
         qualification: x.qualification || {}, finalAsk: x.finalAsk || {},
-        campaign: x.campaign || {},
+        campaign: x.campaign || {}, source: x.source || {}, manualEntry: !!x.manualEntry,
+        createdBy: x.createdBy || '',
         createdAt: tsToIso(x.createdAt), updatedAt: tsToIso(x.updatedAt)
       };
     });
@@ -245,6 +247,29 @@ app.get('/api/admin/leads', requireAdmin, async (req, res) => {
     res.json({ ok: true, leads, referrals });
   } catch (e) {
     console.error('admin leads error', e);
+    res.status(500).json({ ok: false, error: 'server' });
+  }
+});
+
+// --- POST /api/admin/leads : alta manual desde el panel -----------------------
+app.post('/api/admin/leads', requireAdmin, async (req, res) => {
+  try {
+    const ref = db.collection('leads').doc();
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    const record = buildManualLeadRecord(req.body, { adminEmail: req.adminEmail, now });
+    await ref.set(record);
+    res.status(201).json({
+      ok: true,
+      id: ref.id,
+      leadType: record.leadType,
+      score: record.score,
+      pipelineStatus: record.pipelineStatus
+    });
+  } catch (e) {
+    if (e instanceof ManualLeadValidationError) {
+      return res.status(e.status || 400).json({ ok: false, error: e.code, message: e.message });
+    }
+    console.error('admin manual lead error', e);
     res.status(500).json({ ok: false, error: 'server' });
   }
 });
@@ -274,10 +299,6 @@ app.get('/api/admin/stats', requireAdmin, async (req, res) => {
 });
 
 // --- PATCH /api/admin/lead/:id : estado de pipeline, notas y rating ----------
-const PIPELINE_STATES = new Set([
-  'Solicitado', 'Revisado', 'Agendado', 'Primera Reunión', 'Segunda Reunión',
-  'Trabajando', 'Cerrado', 'Cerrado con feedback'
-]);
 app.patch('/api/admin/lead/:id', requireAdmin, async (req, res) => {
   try {
     const id = clean(req.params.id, 200);
@@ -324,4 +345,8 @@ app.use(express.static(PUB, {
 }));
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
-app.listen(PORT, () => console.log(`socio-funnel API+static en :${PORT}`));
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`socio-funnel API+static en :${PORT}`));
+}
+
+module.exports = { app };
